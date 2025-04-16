@@ -1,14 +1,16 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HomeView from './views/HomeView.vue';
+import { RouterView } from 'vue-router'
+import Menu from "./components/Menu.vue";
 </script>
 
 <template>
+    <div id="app">
+        <Menu/>
+        <main class="container my-4">
+        <RouterView />
+        </main>
 
-    <HomeView />
-
-
-  <RouterView />
+    </div>
 </template>
 
 <style scoped>

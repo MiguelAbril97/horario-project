@@ -20,6 +20,36 @@ export const getHorarios = async () => {
   }
 }
 
+export const getHorarioProfe = async (profesorId) => {
+  try {
+    const response = await apiClient.get(`horarios/profesor/${profesorId}/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los horarios del profesor:', error);
+    throw error
+  }
+}
+
+export const getProfe = async (profesorId) => {
+  try {
+    const response = await apiClient.get(`profesor/${profesorId}/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los horarios del profesor:', error);
+    throw error
+  }
+}
+
+export const getProfesores = async () => {
+  try {
+    const response = await apiClient.get(`profesores/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los horarios del profesor:', error);
+    throw error
+  }
+}
+
 // Si necesitas agregar más funciones, puedes seguir este estilo:
 // export const createHorario = async (nuevoHorario) => { ... }
 // export const deleteHorario = async (id) => { ... }
