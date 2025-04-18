@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HorarioView from '@/views/HorarioView.vue'
 import Inicio from '@/views/Inicio.vue'
 import LoginView from '@/views/LoginView.vue'
+import AusenciaForm from '@/views/AusenciaForm.vue'
+import AusenciaView from '@/views/AusenciaView.vue'
 import { logout } from '@/api/peticiones.js'
 
 const router = createRouter({
@@ -31,6 +33,16 @@ const router = createRouter({
         logout()                       
         next({ name: 'login' })       
       }
+    },
+    {
+      path: '/ausencias',
+      name:'ausencias',
+      component:AusenciaView,
+    },
+    {
+      path: '/ausencias/crear',
+      name:'ausencia-crear',
+      component:AusenciaForm,
     },
   ],
 })

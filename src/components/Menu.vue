@@ -6,13 +6,17 @@
             <li class="nav-item">
               <RouterLink class="nav-link" to="/">Inicio</RouterLink>
             </li>
-          </ul>
-          <ul class="navbar-nav">
-            <li v-if="!isAuthenticated" class="nav-item">
+            <li v-if="!sesion.checkSesion()" class="nav-item">
               <RouterLink class="nav-link" to="/login">Login</RouterLink>
             </li>
             <li v-else class="nav-item">
-              <RouterLink class="nav-link" to="/logout">Logout</RouterLink>
+              <RouterLink class="nav-link" to="/logout" @click.prevent="sesion.logout()">Logout</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" to="/ausencias">Ausencias</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" to="/ausencias/crear">Crear Ausencia</RouterLink>
             </li>
           </ul>
         </div>
@@ -21,30 +25,13 @@
   </template>
   
   <script setup>
-  import { ref, onMounted, onUnmounted } from 'vue';
-  
-  // Estado de autenticación basado en la existencia del token
-  const isAuthenticated = ref(false);
-  
-  const checkAuth = () => {
-    isAuthenticated.value = !!localStorage.getItem('access_token');
-  };
-  
-  // Verificar al montar el componente
+  import { useSesionStore } from '@/stores/sesion';
+  import { onMounted } from 'vue';
 
-  function onStorageChange(event) {
-        if (event.key === 'access_token') {
-            checkAuth();
-        }
-    }
-
-    onMounted(() => {
-        checkAuth();
-        window.addEventListener('storage', onStorageChange);
-    });
-
-    onUnmounted(() => {
-        window.removeEventListener('storage', onStorageChange);
-    });
+  const sesion = useSesionStore();
+  
+  onMounted(() => {
+    sesion.checkSesion();
+  });
   </script>
   

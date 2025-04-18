@@ -74,7 +74,7 @@ export const login = async (token) => {
 export const logout = async () => {
   const refreshToken = localStorage.getItem('refresh_token');
   if (refreshToken) {
-    const revokeURL = 'http://127.0.0.1:8000/oauth2/revoke_token/';
+    const revokeURL = 'http://127.0.0.1:8000/oauth2/revoke_token';
     const params = new URLSearchParams();
     params.append('token', refreshToken);
     params.append('client_id', clientId);
@@ -92,6 +92,8 @@ export const logout = async () => {
   }
   setAuthToken(null);
   localStorage.removeItem('refresh_token');
+  localStorage.removeItem('usuario');
+
 };
 
 // Resto de peticiones usando apiClient
@@ -105,6 +107,16 @@ export const getHorarioProfe = async (profesorId) => {
   return response.data;
 };
 
+export const getHorarioProfeDia = async (profesorId,dia) => {
+  const response = await apiClient.get(`horarios/profesor/${profesorId}/${dia}/`);
+  return response.data;
+};
+
+export const getHorariosDia = async (dia) => {
+  const response = await apiClient.get(`horarios/dia/${dia}/`);
+  return response.data;
+} 
+
 export const getProfe = async (profesorId) => {
   const response = await apiClient.get(`profesor/${profesorId}/`);
   return response.data;
@@ -115,4 +127,37 @@ export const getProfesores = async () => {
   return response.data;
 };
 
-// Si necesitas más funciones, sigue este patrón.
+export const getAusencias = async () => {
+  const response = await apiClient.get(`ausencias/`);
+  return response.data;
+};
+
+export const getAusenciasProfe = async (profesorId) => {
+  const response = await apiClient.get(`ausencias/profesor/${profesorId}/`);
+  return response.data;
+};
+
+export const getAusencia = async (ausenciaId) => {
+  const response = await apiClient.get(`ausencia/${ausenciaId}/`);
+  return response.data;
+};
+
+export const getAusenciasFecha = async (fecha) => {
+  const response = await apiClient.get(`ausencias/fecha/${fecha}/`);
+  return response.data;
+};
+
+export const createAusencia = async (data) => {
+  const response = await apiClient.post(`ausencias/crear/`, data);
+  return response.data;
+};
+
+export const setAusencia = async (data, ausenciaId) => {
+  const response = await apiClient.post(`ausencias/editar/${ausenciaId}/`, data);
+  return response.data;
+};
+
+export const deleteAusencia = async (ausenciaId) => {
+  const response = await apiClient.post(`ausencias/eliminar/${ausenciaId}/`);
+  return response.data;
+};

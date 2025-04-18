@@ -2,6 +2,10 @@
 import { obtenerToken, login } from '@/api/peticiones';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { useSesionStore } from '@/stores/sesion';
+
+
+const sesion = useSesionStore();
 
 const router = useRouter();
 const username = ref('');
@@ -18,6 +22,7 @@ const iniciarSesion = async () => {
       // (Opcional) Obtener el usuario y guardarlo en Vuex o localStorage
       const usuario = await login(token);
       localStorage.setItem('usuario', JSON.stringify(usuario));
+      sesion.login()
       router.push('/');
     } else {
       error.value = 'Usuario o contraseña incorrectos';
