@@ -1,38 +1,39 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { obtenerToken } from '@/api/peticiones'
+import { obtenerToken, login } from '@/api/peticiones';
+import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 
-const router = useRouter()
-const username = ref('')
-const password = ref('')
-const error = ref(null)
+const router = useRouter();
+const username = ref('');
+const password = ref('');
+const error = ref(null);
 
-const login = async () => {
-  error.value = null
+const iniciarSesion = async () => {
+  error.value = null;
+
   try {
-    // Modificamos obtenerToken para que devuelva una promesa con el token
-    let token = await new Promise((resolve, reject) => {
-      obtenerToken(username.value, password.value, resolve, reject)
-    });
-    
+    const token = await obtenerToken(username.value, password.value);
+
     if (token) {
-      localStorage.setItem('access_token', token.access_token)
-      
-      router.push('/')
+      // (Opcional) Obtener el usuario y guardarlo en Vuex o localStorage
+      const usuario = await login(token);
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+      router.push('/');
     } else {
-      error.value = 'Usuario o contraseña incorrectos'
+      error.value = 'Usuario o contraseña incorrectos';
     }
   } catch (err) {
-    error.value = 'Usuario o contraseña incorrectos'
+    console.error('❌ Error en iniciarSesion:', err);
+    error.value = 'Usuario o contraseña incorrectos';
   }
-}
+};
+
 </script>
 
 <template>
   <div class="container mt-5" style="max-width: 400px;">
     <h2>Iniciar sesión</h2>
-    <form @submit.prevent="login">
+    <form @submit.prevent="iniciarSesion">
       <div class="mb-3">
         <label for="username" class="form-label">Usuario</label>
         <input v-model="username" type="text" class="form-control" id="username" required />

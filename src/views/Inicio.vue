@@ -1,19 +1,27 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { getHorarios, getProfesores } from '@/api/peticiones'
+import { getHorarioProfe, getProfesores } from '@/api/peticiones'
 import { useRouter } from 'vue-router';
+import HorarioTable from '@/components/HorarioTable.vue'
+
 
 const router = useRouter();
-const horarios = ref([])
+const profesor = ref(null)
+const horario = ref([])
 const error = ref(null)
 const profesores = ref([])
+const selectedProfesor = ref(null)
 
 const dias = ['L', 'M', 'X', 'J', 'V']
 const horas = Array.from({ length: 13 }, (_, i) => i + 1) // 1 a 13
 
 onMounted(async () => {
+  const usuarioGuardado = localStorage.getItem('usuario')
+  if (usuarioGuardado) {
+    profesor.value = JSON.parse(usuarioGuardado)
+  }
   try {
-    horarios.value = await getHorarios()
+    horario.value = await getHorarioProfe(profesor.value.id)
     profesores.value = await getProfesores()
   } catch (err) {
     error.value = err.message
@@ -37,11 +45,11 @@ const verProfe = (profesorId) => {
         </option>
       </select>
     </div>
-
-
-
     <p v-if="error" class="text-danger">Error: {{ error }}</p>
   </div>
+
+  <h2>Tu horarios</h2>
+  <HorarioTable :horarios="horario" :dias="dias" :horas="horas" />
 </template>
 
 <style scoped>
