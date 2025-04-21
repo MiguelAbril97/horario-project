@@ -13,6 +13,6 @@ export const useSesionStore = defineStore('auth', {
     },
     checkSesion() {
       this.isAuthenticated = !!localStorage.getItem('access_token')
-    }
+    },
   }
 })

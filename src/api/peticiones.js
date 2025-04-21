@@ -158,6 +158,6 @@ export const setAusencia = async (data, ausenciaId) => {
 };
 
 export const deleteAusencia = async (ausenciaId) => {
-  const response = await apiClient.post(`ausencias/eliminar/${ausenciaId}/`);
+  const response = await apiClient.delete(`ausencias/eliminar/${ausenciaId}/`);
   return response.data;
 };

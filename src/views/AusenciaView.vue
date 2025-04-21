@@ -1,13 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAusenciasFecha, getHorariosDia } from '@/api/peticiones'
+import { getAusenciasFecha, getAusenciasProfe, getHorariosDia, deleteAusencia } from '@/api/peticiones'
+import { getusuarioGuardado } from '@/api/usuario';
 
 // Utilidades para obtener fecha y día actual
 function getDiaSemanaLetra(fecha) {
   // 0: domingo, 1: lunes, ..., 6: sábado
-  const dias = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
-  const jsDate = new Date(fecha)
-  return dias[jsDate.getDay()]
+  const dias = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+  const jsDate = new Date(fecha);
+  return dias[jsDate.getDay()];
 }
 
 function getFechaHoy() {
@@ -15,25 +16,26 @@ function getFechaHoy() {
   return hoy.toISOString().slice(0, 10)
 }
 
-const fecha = ref(getFechaHoy())
-const dia = ref(getDiaSemanaLetra(fecha.value))
+const fecha = ref(getFechaHoy());
+const dia = ref(getDiaSemanaLetra(fecha.value));
 const horas = Array.from({ length: 14 }, (_, i) => i + 1) // 1 a 14
+const profesor = ref(null)
 
-const ausencias = ref([])
-const horarios = ref([])
-const error = ref(null)
+const ausencias = ref([]);
+const horarios = ref([]);
+const error = ref(null);
+const misAusencias = ref([]);
 
 const cargarDatos = async () => {
   try {
-    ausencias.value = await getAusenciasFecha(fecha.value)
-    // Si es sábado o domingo, no hay parte
-    if (!['L', 'M', 'X', 'J', 'V'].includes(dia.value)) {
-      horarios.value = []
-      return
-    }
-    horarios.value = await getHorariosDia(dia.value)
+    profesor.value = getusuarioGuardado()
+    ausencias.value = await getAusenciasFecha(fecha.value);
+    misAusencias.value = await getAusenciasProfe(profesor.value.id);
+    horarios.value = await getHorariosDia(dia.value);
+    misAusencias.value = [...misAusencias.value].sort((a,b)=> a.fecha - b.fecha)
+
   } catch (err) {
-    error.value = err.message
+    error.value = err.message;
   }
 }
 
@@ -41,22 +43,22 @@ onMounted(cargarDatos)
 
 // Helpers para filtrar por hora
 function getAusenciasPorHora(hora) {
-  return ausencias.value.filter(a => a.horario?.dia === dia.value && a.horario?.hora === hora)
+  return ausencias.value.filter(a => a.horario?.dia === dia.value && a.horario?.hora === hora);
 }
 
 function getProfesoresAusentes(hora) {
   return getAusenciasPorHora(hora)
     .map(a => a.profesor ? `${a.profesor.first_name} ${a.profesor.last_name}` : '')
     .filter(Boolean)
-    .join(', ')
+    .join(', ');
 }
 
 function getProfesoresPresentes(hora) {
-  const ausentesIds = getAusenciasPorHora(hora).map(a => a.profesor?.id)
+  const ausentesIds = getAusenciasPorHora(hora).map(a => a.profesor?.id);
   const presentes = horarios.value
     .filter(h => h.hora === hora && h.profesor && !ausentesIds.includes(h.profesor.id))
     .map(h => `${h.profesor.first_name} ${h.profesor.last_name}`)
-  return [...new Set(presentes)].join(', ')
+  return [...new Set(presentes)].join(', ');
 }
 
 function getGruposSinProfesor(hora) {
@@ -112,6 +114,17 @@ function getAulasSinProfesor(hora) {
     </div>
     <div v-else>
       <div class="alert alert-info">No hay parte de ausencias para hoy ({{ fecha }}).</div>
+    </div>
+  </div>
+  
+  <div class="container mt-5">
+    <h2>Ausencias del usuario</h2>
+    <div class="list-group" v-for="ausencia in misAusencias" :key="ausencia.id">
+      <li class="list-group-item list-group-item-action">
+        {{ ausencia.fecha }} / {{ ausencia.id }}
+        <button type="button" 
+        class="btn btn-outline-danger" @click="deleteAusencia(ausencia.id)">Delete</button>
+      </li>
     </div>
   </div>
 </template>

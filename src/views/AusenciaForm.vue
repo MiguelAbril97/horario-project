@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { createAusencia, getHorarioProfeDia } from '@/api/peticiones'
+import { getusuarioGuardado } from '@/api/usuario';
+
 
 // Obtener el usuario (profesor) del localStorage
 const profesor = ref(null)
@@ -20,10 +22,8 @@ function getDiaSemanaLetra(fechaStr) {
 
 // Cargar el usuario al montar el componente
 onMounted(() => {
-  const usuarioGuardado = localStorage.getItem('usuario')
-  if (usuarioGuardado) {
-    profesor.value = JSON.parse(usuarioGuardado)
-  }
+  profesor.value = getusuarioGuardado();
+  
 })
 
 // Cuando cambia la fecha, carga los horarios del profesor para ese día
