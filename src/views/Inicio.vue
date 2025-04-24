@@ -8,7 +8,8 @@ import HorarioTable from '@/components/HorarioTable.vue'
 const router = useRouter();
 const profesor = ref(null)
 const horario = ref([])
-const error = ref(null)
+const errorHorario = ref(null)
+const errorProfesores = ref(null)
 const profesores = ref([])
 const selectedProfesor = ref(null)
 
@@ -22,9 +23,13 @@ onMounted(async () => {
   }
   try {
     horario.value = await getHorarioProfe(profesor.value.id)
+  } catch (err) {
+    errorHorario.value = err.message
+  }  
+  try {
     profesores.value = await getProfesores()
   } catch (err) {
-    error.value = err.message
+    errorProfesores.value = err.message
   }
 })
 const verProfe = (profesorId) => {
@@ -41,11 +46,13 @@ const verProfe = (profesorId) => {
       <select id="profesorSelect" class="form-select" v-model="selectedProfesor" @change="verProfe(selectedProfesor)">
         <option value="" disabled>Seleccione un profesor</option>
         <option v-for="profesor in profesores" :key="profesor.id" :value="profesor.id">
-          {{ profesor.first_name }} {{ profesor.last_name }}
+          {{ profesor.last_name }}, {{ profesor.first_name }}
         </option>
       </select>
     </div>
-    <p v-if="error" class="text-danger">Error: {{ error }}</p>
+    <p v-if="errorProfesores" class="text-danger">Error: {{ errorProfesores }}</p>
+    <p v-if="errorHorario" class="text-danger">Error: {{ errorHorario }}</p>
+
   </div>
 
   <h2>Tu horarios</h2>

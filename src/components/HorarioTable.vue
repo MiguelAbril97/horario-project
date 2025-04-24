@@ -11,10 +11,7 @@
           <tr v-for="hora in horas" :key="hora">
             <td>{{ hora }}</td>
             <template v-for="dia in dias" :key="dia">
-              <td v-if="hora === 4 || hora === 11">
-                <strong>RECREO</strong>
-              </td>
-              <td v-else>
+              <td>
                 <template v-for="h in horarios" :key="h.id">
                   <div v-if="h.hora === hora && h.dia === dia" class="d-flex flex-column">
                     <strong>{{ h.asignatura.nombre }}</strong>
