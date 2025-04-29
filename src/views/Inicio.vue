@@ -55,7 +55,7 @@ const verProfe = (profesorId) => {
 
   </div>
 
-  <h2>Tu horarios</h2>
+  <h2>Tu horario</h2>
   <HorarioTable :horarios="horario" :dias="dias" :horas="horas" />
 </template>
 

@@ -5,6 +5,7 @@ import LoginView from '@/views/LoginView.vue'
 import AusenciaForm from '@/views/AusenciaForm.vue'
 import AusenciaView from '@/views/AusenciaView.vue'
 import { logout } from '@/api/peticiones.js'
+import UsuarioForm from '@/views/UsuarioForm.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,6 +44,17 @@ const router = createRouter({
       path: '/ausencias/crear',
       name:'ausencia-crear',
       component:AusenciaForm,
+    },
+    {
+      path:'/usuario/crear',
+      name:'usuario-crear',
+      component:UsuarioForm,
+    },
+    {
+      path: '/usuario/editar/:id',
+      name: 'usuario-editar',
+      component: UsuarioForm,
+      props: true
     },
   ],
 })

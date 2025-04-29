@@ -49,10 +49,14 @@ watch(
 <template>
   <div class="container mt-5">
     <div v-if="profesor">
-      <h2>Datos del profesor</h2>
+      <h2>
+        Datos del profesor
+        <router-link :to="`/usuario/editar/${id_profe}`" class="ms-2">
+          <i class="bi bi-pencil"></i>
+        </router-link>
+      </h2>
       <p><strong>Nombre:</strong> {{ profesor.first_name }} {{ profesor.last_name }}</p>
       <p><strong>Email:</strong> {{ profesor.email }}</p>
-      <p><strong>Nombre de usuario:</strong> {{ profesor.username }}</p>
     </div>
     <div class="d-flex flex-column">
       <h2 v-if="profesor" class="my-4">Horario de {{ profesor.first_name }} {{ profesor.last_name }}</h2>

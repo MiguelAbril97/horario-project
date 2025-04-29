@@ -74,7 +74,7 @@ export const login = async (token) => {
 export const logout = async () => {
   const refreshToken = localStorage.getItem('refresh_token');
   if (refreshToken) {
-    const revokeURL = 'http://127.0.0.1:8000/oauth2/revoke_token';
+    const revokeURL = 'http://127.0.0.1:8000/oauth2/revoke_token/';
     const params = new URLSearchParams();
     params.append('token', refreshToken);
     params.append('client_id', clientId);
@@ -161,3 +161,19 @@ export const deleteAusencia = async (ausenciaId) => {
   const response = await apiClient.delete(`ausencias/eliminar/${ausenciaId}/`);
   return response.data;
 };
+
+
+export const crearUsuario = async (data) => {
+  const response = await apiClient.post(`usuario/crear/`, data);
+  return response.data;
+}
+
+export const editarUsuario = async (data, id_usuario) => {
+  const response = await apiClient.put(`usuario/editar/${id_usuario}/`, data);
+  return response.data;
+}
+
+export const eliminarUsuario = async (id_usuario) => {
+  const response = await apiClient.delete(`usuario/eliminar/${id_usuario}/`);
+  return response.data;
+}
