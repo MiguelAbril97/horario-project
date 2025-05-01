@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { getHorarioProfe, getProfesores } from '@/api/peticiones'
+import { getHorarioProfe, getProfesores, subirHorario } from '@/api/peticiones'
 import { useRouter } from 'vue-router';
 import HorarioTable from '@/components/HorarioTable.vue'
 
@@ -15,6 +15,8 @@ const selectedProfesor = ref(null)
 
 const dias = ['L', 'M', 'X', 'J', 'V']
 const horas = Array.from({ length: 13 }, (_, i) => i + 1) // 1 a 13
+
+const errorArchivo = ref(null)
 
 onMounted(async () => {
   const usuarioGuardado = localStorage.getItem('usuario')
@@ -36,11 +38,23 @@ const verProfe = (profesorId) => {
   router.push(`/profesor/${profesorId}`)
 }
 
+const onFileChange = async (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    try{
+      await subirHorario(file);
+    }catch (err){
+      errorArchivo.value = err.message
+    }
+  }
+};
 
 </script>
 
 <template>
   <div class="container mt-5">
+    <input type="file" @change="onFileChange" accept=".csv,.txt" />
+    <p v-if="errorArchivo" class="text-danger">Error: {{ errorArchivo }}</p>
     <div class="mb-4">
       <label for="profesorSelect" class="form-label">Selecciona un profesor: </label>
       <select id="profesorSelect" class="form-select" v-model="selectedProfesor" @change="verProfe(selectedProfesor)">

@@ -132,6 +132,11 @@ export const getAusencias = async () => {
   return response.data;
 };
 
+export const getGuardias = async () => {
+  const response = await apiClient.get(`horarios/guardias/`);
+  return response.data;
+}
+
 export const getAusenciasProfe = async (profesorId) => {
   const response = await apiClient.get(`ausencias/profesor/${profesorId}/`);
   return response.data;
@@ -175,5 +180,17 @@ export const editarUsuario = async (data, id_usuario) => {
 
 export const eliminarUsuario = async (id_usuario) => {
   const response = await apiClient.delete(`usuario/eliminar/${id_usuario}/`);
+  return response.data;
+}
+
+export const subirHorario = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await apiClient.post('horarios/subir/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 }
