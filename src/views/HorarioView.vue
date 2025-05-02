@@ -55,7 +55,12 @@ watch(
           <i class="bi bi-pencil"></i>
         </router-link>
       </h2>
-      <p><strong>Nombre:</strong> {{ profesor.first_name }} {{ profesor.last_name }}</p>
+      <p>
+        <strong>Nombre: </strong> 
+        <router-link :to="`/usuario/ver/${id_profe}`" class="ms-2">
+          {{ profesor.first_name }} {{ profesor.last_name }}
+        </router-link>
+      </p>
       <p><strong>Email:</strong> {{ profesor.email }}</p>
     </div>
     <div class="d-flex flex-column">

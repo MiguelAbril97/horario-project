@@ -132,8 +132,8 @@ export const getAusencias = async () => {
   return response.data;
 };
 
-export const getGuardias = async () => {
-  const response = await apiClient.get(`horarios/guardias/`);
+export const getGuardias = async (dia) => {
+  const response = await apiClient.get(`horarios/guardias/${dia}/`);
   return response.data;
 }
 

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAusenciasFecha, getAusenciasProfe, getHorariosDia, deleteAusencia } from '@/api/peticiones'
+import { getAusenciasFecha, getAusenciasProfe, getHorariosDia, deleteAusencia, getGuardias } from '@/api/peticiones'
 import { getusuarioGuardado } from '@/api/usuario';
 
 // Utilidades para obtener fecha y día actual
@@ -20,6 +20,7 @@ const fecha = ref(getFechaHoy());
 const dia = ref(getDiaSemanaLetra(fecha.value));
 const horas = Array.from({ length: 14 }, (_, i) => i + 1) // 1 a 14
 const profesor = ref(null)
+const guardias = ref([]);
 
 const ausencias = ref([]);
 const horarios = ref([]);
@@ -32,6 +33,7 @@ const cargarDatos = async () => {
     ausencias.value = await getAusenciasFecha(fecha.value);
     misAusencias.value = await getAusenciasProfe(profesor.value.id);
     horarios.value = await getHorariosDia(dia.value);
+    guardias.value = await getGuardias(dia.value);
     misAusencias.value = [...misAusencias.value].sort((a,b)=> a.fecha - b.fecha)
 
   } catch (err) {
@@ -41,43 +43,39 @@ const cargarDatos = async () => {
 
 onMounted(cargarDatos)
 
-// Helpers para filtrar por hora
-function getAusenciasPorHora(hora) {
-  return ausencias.value.filter(a => a.horario?.dia === dia.value && a.horario?.hora === hora);
-}
+// ...existing code...
 
-function getProfesoresAusentes(hora) {
-  return getAusenciasPorHora(hora)
-    .map(a => a.profesor ? `${a.profesor.first_name} ${a.profesor.last_name}` : '')
-    .filter(Boolean)
+function getProfesoresAusentesPorHora(hora) {
+  // Devuelve los nombres de profesores ausentes en esa hora
+  return ausencias.value
+    .filter(a => a.horario.hora === hora)
+    .map(a => `${a.profesor.first_name} ${a.profesor.last_name}`)
     .join(', ');
 }
 
-function getProfesoresPresentes(hora) {
-  const ausentesIds = getAusenciasPorHora(hora).map(a => a.profesor?.id);
-  const presentes = horarios.value
-    .filter(h => h.hora === hora && h.profesor && !ausentesIds.includes(h.profesor.id))
-    .map(h => `${h.profesor.first_name} ${h.profesor.last_name}`)
-  return [...new Set(presentes)].join(', ');
+function getProfesoresGuardiaPorHora(hora) {
+  return guardias.value
+    .filter(g => g.hora === hora)
+    .map(g => `${g.profesor.first_name} ${g.profesor.last_name}`)
+    .join(', ');
 }
 
-function getGruposSinProfesor(hora) {
-  const ausentesIds = getAusenciasPorHora(hora).map(a => a.profesor?.id)
-  return horarios.value
-    .filter(h => h.hora === hora && ausentesIds.includes(h.profesor.id))
-    .map(h => h.grupo?.nombre)
-    .filter(Boolean)
-    .join(', ')
+function getGruposSinProfesorPorHora(hora) {
+  // Devuelve los nombres de grupos sin profesor en esa hora
+  return ausencias.value
+    .filter(a => a.horario.hora === hora)
+    .map(a => a.horario.grupo.nombre)
+    .join(', ');
 }
 
-function getAulasSinProfesor(hora) {
-  const ausentesIds = getAusenciasPorHora(hora).map(a => a.profesor?.id)
-  return horarios.value
-    .filter(h => h.hora === hora && ausentesIds.includes(h.profesor.id))
-    .map(h => h.aula?.numero)
-    .filter(Boolean)
-    .join(', ')
+function getAulasSinProfesorPorHora(hora) {
+  // Devuelve los nombres de aulas sin profesor en esa hora
+  return ausencias.value
+    .filter(a => a.horario.hora === hora)
+    .map(a => a.horario.aula.numero)
+    .join(', ');
 }
+
 </script>
 
 <template>
@@ -103,10 +101,10 @@ function getAulasSinProfesor(hora) {
           <tbody>
             <tr v-for="hora in horas" :key="hora">
               <td>{{ hora }}</td>
-              <td>{{ getProfesoresAusentes(hora) || '-' }}</td>
-              <td>{{ getProfesoresPresentes(hora) || '-' }}</td>
-              <td>{{ getGruposSinProfesor(hora) || '-' }}</td>
-              <td>{{ getAulasSinProfesor(hora) || '-' }}</td>
+              <td>{{ getProfesoresAusentesPorHora(hora) || '-' }}</td>
+              <td>{{ getProfesoresGuardiaPorHora(hora) || '-' }}</td>
+              <td>{{ getGruposSinProfesorPorHora(hora) || '-' }}</td>
+              <td>{{ getAulasSinProfesorPorHora(hora) || '-' }}</td>
             </tr>
           </tbody>
         </table>
