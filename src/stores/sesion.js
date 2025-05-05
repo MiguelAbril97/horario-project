@@ -16,3 +16,8 @@ export const useSesionStore = defineStore('auth', {
     },
   }
 })
+
+export function getusuarioGuardado(){
+  let usuario = localStorage.getItem('usuario');
+  return JSON.parse(usuario);
+}
