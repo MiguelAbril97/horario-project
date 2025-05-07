@@ -1,17 +1,22 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { createAusencia, getHorarioProfeDia } from '@/api/peticiones'
-import { getusuarioGuardado } from '@/api/usuario';
+import { useUserStore } from '@/stores/sesion';
 
 
-// Obtener el usuario (profesor) del localStorage
-const profesor = ref(null)
+const userStore = useUserStore();
+const profesor = computed(()=>ref(userStore.getUser()));
 const fecha = ref('')
 const motivo = ref('')
 const horariosDia = ref([])
 const horasSeleccionadas = ref([]) // IDs de los horarios seleccionados
 const error = ref(null)
 const exito = ref(null)
+const prohibido = ref(false)
+
+onMounted(() => {
+  profesor.value = userStore.getUser();
+});
 
 // Calcular el día de la semana (L, M, X, J, V) a partir de la fecha seleccionada
 function getDiaSemanaLetra(fechaStr) {
@@ -20,22 +25,16 @@ function getDiaSemanaLetra(fechaStr) {
   return dias[jsDate.getDay()]
 }
 
-// Cargar el usuario al montar el componente
-onMounted(() => {
-  profesor.value = getusuarioGuardado();
-  
-})
-
 // Cuando cambia la fecha, carga los horarios del profesor para ese día
 watch(fecha, async (nuevaFecha) => {
   horasSeleccionadas.value = []
   horariosDia.value = []
   exito.value = null
   error.value = null
-  if (nuevaFecha && profesor.value) {
+  if (nuevaFecha && profesor.value.value) {
     const diaLetra = getDiaSemanaLetra(nuevaFecha)
     try {
-      horariosDia.value = await getHorarioProfeDia(profesor.value.id, diaLetra)
+      horariosDia.value = await getHorarioProfeDia(profesor.value.value.id, diaLetra)
     } catch (err) {
       error.value = 'No se pudieron cargar los horarios.'
     }
@@ -70,14 +69,14 @@ const enviarAusencia = async () => {
 </script>
 
 <template>
-  <div class="container mt-5" style="max-width: 500px;">
+  <div v-if="prohibido === false" class="container mt-5" style="max-width: 500px;">
     <h3>Reportar Ausencia</h3>
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
     <div v-if="exito" class="alert alert-success">{{ exito }}</div>
     <form @submit.prevent="enviarAusencia">
       <div class="mb-3">
         <label class="form-label">Profesor</label>
-        <input type="text" class="form-control" :value="profesor ? profesor.first_name + ' ' + profesor.last_name : ''" disabled>
+        <input type="text" class="form-control" :value="profesor ? profesor.value.first_name + ' ' + profesor.value.last_name : ''" disabled>
       </div>
       <div class="mb-3">
         <label for="fecha" class="form-label">Fecha</label>
@@ -98,5 +97,10 @@ const enviarAusencia = async () => {
       </div>
       <button type="submit" class="btn btn-dark w-100">Reportar Ausencia</button>
     </form>
+  </div>
+
+  <div v-else class="container mt-5" style="max-width: 500px;">
+    <h3>Acceso Prohibido</h3>
+    <p>No tienes permiso para acceder a esta página.</p>
   </div>
 </template>

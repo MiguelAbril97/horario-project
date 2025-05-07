@@ -20,10 +20,10 @@
             <li class="nav-item d-flex align-items-center">
               <RouterLink class="nav-link" to="/ausencias/crear" style="color: #ffffff;">Crear Ausencia</RouterLink>
             </li>
-            <li v-if="profesor.value.group == 1 || profesor.value.is_superuser == true" class="nav-item d-flex align-items-center">
+            <li v-if="profesor.value.rol == 1 || profesor.value.is_superuser == true" class="nav-item d-flex align-items-center">
               <RouterLink class="nav-link" to="/usuario/crear" style="color: #ffffff;">Crear Usuario</RouterLink>
             </li>
-            <li v-if="profesor.value.group == 1 || profesor.value.is_superuser == true" class="nav-item d-flex align-items-center">
+            <li v-if="profesor.value.rol == 1 || profesor.value.is_superuser == true" class="nav-item d-flex align-items-center">
               <RouterLink class="nav-link" to="/horario/subir" style="color: #ffffff;">Cargar Nuevo Horario</RouterLink>
             </li>
             <li class="nav-item d-flex align-items-center">
