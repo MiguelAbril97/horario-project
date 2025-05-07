@@ -17,7 +17,11 @@ export const useSesionStore = defineStore('auth', {
   }
 })
 
-export function getusuarioGuardado(){
-  let usuario = localStorage.getItem('usuario');
-  return JSON.parse(usuario);
-}
+export const useUserStore = defineStore('user', {
+  actions: {
+    getUser() {
+      let usuario = localStorage.getItem("usuario");
+      return usuario ? JSON.parse(usuario) : null;
+    }
+  }
+})

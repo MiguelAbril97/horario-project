@@ -7,6 +7,7 @@ import AusenciaView from '@/views/AusenciaView.vue'
 import { logout } from '@/api/peticiones.js'
 import UsuarioForm from '@/views/UsuarioForm.vue'
 import AboutView from '@/views/AboutView.vue'
+import CargarHorarioView from '@/views/CargarHorarioView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,6 +63,11 @@ const router = createRouter({
       name: 'usuario-editar',
       component: UsuarioForm,
       props: true
+    },
+    {
+      path: '/horario/subir',
+      name: 'horario-subir',
+      component: CargarHorarioView,
     },
   ],
 })
