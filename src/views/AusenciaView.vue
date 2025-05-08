@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAusenciasFecha, getAusenciasProfe, getHorariosDia, deleteAusencia, getGuardias } from '@/api/peticiones'
+import { getAusenciasFecha, getAusenciasProfe, getHorariosDia, 
+  deleteAusencia, getGuardias, enviarParteAusencias } from '@/api/peticiones'
 import { getusuarioGuardado } from '@/api/usuario';
+import html2pdf from 'html2pdf.js';
 
 // Utilidades para obtener fecha y día actual
 function getDiaSemanaLetra(fecha) {
@@ -26,6 +28,7 @@ const ausencias = ref([]);
 const horarios = ref([]);
 const error = ref(null);
 const misAusencias = ref([]);
+const pdfError = ref(null);
 
 const cargarDatos = async () => {
   try {
@@ -76,6 +79,38 @@ function getAulasSinProfesorPorHora(hora) {
     .join(', ');
 }
 
+function descargarPDF() {
+  const tabla = document.getElementById('tabla-ausencias');
+  if (tabla) {
+    html2pdf().from(tabla).set({
+      margin: 0.5,
+      filename: `parte_ausencias_${fecha.value}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+    }).save();
+  }
+}
+
+async function enviarPartePorCorreo() {
+  const tabla = document.getElementById('tabla-ausencias');
+  if (tabla) {
+    const opt = {
+      margin: 0.5,
+      filename: `parte_ausencias_${fecha.value}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+    };
+    const pdfBlob = await html2pdf().from(tabla).set(opt).outputPdf('blob');
+    try{
+      await enviarParteAusencias(pdfBlob);
+
+    }catch (err){
+      pdfError.value = 'Error al enviar el parte por correo.'
+    }
+  }
+}
 </script>
 
 <template>
@@ -87,7 +122,7 @@ function getAulasSinProfesorPorHora(hora) {
         {{ dia === 'L' ? 'Lunes' : dia === 'M' ? 'Martes' : dia === 'X' ? 'Miércoles' : dia === 'J' ? 'Jueves' : 'Viernes' }}
         ({{ fecha }})
       </h4>
-      <div class="table-responsive">
+      <div class="table-responsive" id="tabla-ausencias">
         <table class="table table-bordered table-striped">
           <thead>
             <tr>
@@ -109,6 +144,13 @@ function getAulasSinProfesorPorHora(hora) {
           </tbody>
         </table>
       </div>
+      <button class="btn btn-primary mb-3" @click="descargarPDF">
+        Descargar PDF
+      </button>
+      <button class="btn btn-secondary mb-3 ms-2" @click="enviarPartePorCorreo">
+        Enviar por correo
+      </button>
+      <p v-if="pdfError" class="alert alert-danger">{{ pdfError.value }}</p>
     </div>
     <div v-else>
       <div class="alert alert-info">No hay parte de ausencias para hoy ({{ fecha }}).</div>
@@ -126,3 +168,11 @@ function getAulasSinProfesorPorHora(hora) {
     </div>
   </div>
 </template>
+<style scoped>
+.table-bordered > tbody > tr {
+  border-bottom: 2px solid #dee2e6;
+}
+.table-bordered > tbody > tr > td {
+  border-bottom: 2px solid #dee2e6;
+}
+</style>

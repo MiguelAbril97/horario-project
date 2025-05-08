@@ -194,3 +194,15 @@ export const subirHorario = async (file) => {
   });
   return response.data;
 }
+
+export const enviarParteAusencias = async (pdfBlob, fecha) => {
+  const formData = new FormData();
+  formData.append('pdf', pdfBlob, `parte_ausencias_${fecha}.pdf`);
+
+  const response = await apiClient.post('http://127.0.0.1:8000/api/ausencias/enviar-parte/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
