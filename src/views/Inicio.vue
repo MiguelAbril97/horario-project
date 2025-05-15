@@ -18,8 +18,10 @@ const horas = Array.from({ length: 13 }, (_, i) => i + 1)
 const mostrarBusqueda = ref(false)
 const grupo = ref(null)
 
+const loading = ref(false);
 
 onMounted(async () => {
+  loading.value = true;
   const usuarioGuardado = localStorage.getItem('usuario')
   if (usuarioGuardado) {
     profesor.value = JSON.parse(usuarioGuardado)
@@ -34,6 +36,7 @@ onMounted(async () => {
   } catch (err) {
     errorProfesores.value = err.message
   }
+  loading.value = false;
 })
 const verProfe = (profesorId) => {
   router.push(`/profesor/${profesorId}`)
@@ -53,7 +56,12 @@ const verGrupo = () => {
 </script>
 
 <template>
-  <div class="container mt-5">
+  <div v-if="loading" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+  <div v-else class="container-fluid mt-5">
     <div>
       <button
         class="btn btn-outline-dark mb-3"
@@ -85,17 +93,14 @@ const verGrupo = () => {
           </div>
         </div>
       </transition>
-      <p v-if="errorProfesores" class="text-danger">Error: {{ errorProfesores }}</p>
-      <p v-if="errorHorario" class="text-danger">Error: {{ errorHorario }}</p>
     </div>
-
+    
     <p v-if="errorProfesores" class="text-danger">Error: {{ errorProfesores }}</p>
     <p v-if="errorHorario" class="text-danger">Error: {{ errorHorario }}</p>
-
+    <h2>Tu horario</h2>
+    <HorarioTable :horarios="horario" :dias="dias" :horas="horas" />
   </div>
 
-  <h2>Tu horario</h2>
-  <HorarioTable :horarios="horario" :dias="dias" :horas="horas" />
 </template>
 
 <style scoped>

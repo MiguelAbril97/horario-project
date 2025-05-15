@@ -30,7 +30,10 @@ const error = ref(null);
 const misAusencias = ref([]);
 const pdfError = ref(null);
 
+const loading = ref(false);
+
 const cargarDatos = async () => {
+  loading.value = true;
   try {
     profesor.value = getusuarioGuardado();
     ausencias.value = await getAusenciasFecha(fecha.value);
@@ -41,12 +44,12 @@ const cargarDatos = async () => {
 
   } catch (err) {
     error.value = err.message;
+  } finally {
+    loading.value = false;
   }
 }
 
 onMounted(cargarDatos)
-
-// ...existing code...
 
 function getProfesoresAusentesPorHora(hora) {
   // Devuelve los nombres de profesores ausentes en esa hora
@@ -114,7 +117,13 @@ async function enviarPartePorCorreo() {
 </script>
 
 <template>
-  <div class="container mt-5">
+  <div v-if="loading" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+  <div v-else>
+      <div class="container mt-5">
     <h2>Parte de ausencias de hoy</h2>
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
     <div v-if="['L','M','X','J','V'].includes(dia)">
@@ -168,6 +177,7 @@ async function enviarPartePorCorreo() {
         class="btn btn-outline-danger" @click="deleteAusencia(ausencia.id)">Delete</button>
       </li>
     </div>
+  </div>
   </div>
 </template>
 <style scoped>
