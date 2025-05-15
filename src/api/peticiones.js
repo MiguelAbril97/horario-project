@@ -206,3 +206,13 @@ export const enviarParteAusencias = async (pdfBlob, fecha) => {
   });
   return response.data;
 };
+
+export const buscarAula = async(aula) =>{
+  const response = await apiClient.get(`horarios/aula/${aula}/`);
+  return response.data;
+}
+
+export const buscarGrupo = async(grupo) =>{
+  const response = await apiClient.get(`horarios/grupo/${grupo}/`);
+  return response.data;
+}

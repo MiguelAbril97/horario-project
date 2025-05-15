@@ -8,6 +8,7 @@ import { logout } from '@/api/peticiones.js'
 import UsuarioForm from '@/views/UsuarioForm.vue'
 import AboutView from '@/views/AboutView.vue'
 import CargarHorarioView from '@/views/CargarHorarioView.vue'
+import Aula_Grupo_View from '@/views/Aula_Grupo_View.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,6 +69,11 @@ const router = createRouter({
       path: '/horario/subir',
       name: 'horario-subir',
       component: CargarHorarioView,
+    },
+    {
+      path: '/horario/:tipo/:nombre',      
+      name: 'aula-grupo-horario',
+      component: Aula_Grupo_View,
     },
   ],
 })

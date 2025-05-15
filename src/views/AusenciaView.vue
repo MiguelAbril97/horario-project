@@ -20,8 +20,8 @@ function getFechaHoy() {
 
 const fecha = ref(getFechaHoy());
 const dia = ref(getDiaSemanaLetra(fecha.value));
-const horas = Array.from({ length: 14 }, (_, i) => i + 1) // 1 a 14
-const profesor = ref(null)
+const horas = Array.from({ length: 14 }, (_, i) => i + 1) 
+const profesor = ref(getusuarioGuardado())
 const guardias = ref([]);
 
 const ausencias = ref([]);
@@ -32,7 +32,7 @@ const pdfError = ref(null);
 
 const cargarDatos = async () => {
   try {
-    profesor.value = getusuarioGuardado()
+    profesor.value = getusuarioGuardado();
     ausencias.value = await getAusenciasFecha(fecha.value);
     misAusencias.value = await getAusenciasProfe(profesor.value.id);
     horarios.value = await getHorariosDia(dia.value);
@@ -126,11 +126,11 @@ async function enviarPartePorCorreo() {
         <table class="table table-bordered table-striped">
           <thead>
             <tr>
-              <th>Hora</th>
-              <th>Profesores Ausentes</th>
-              <th>Profesores Presentes</th>
-              <th>Grupos sin Profesor</th>
-              <th>Aulas sin Profesor</th>
+                <th class="bg-dark text-white text-center">Hora</th>
+                <th class="bg-dark text-white text-center">Profesores Ausentes</th>
+                <th class="bg-dark text-white text-center">Profesores Presentes</th>
+                <th class="bg-dark text-white text-center">Grupos sin Profesor</th>
+                <th class="bg-dark text-white text-center">Aulas sin Profesor</th>
             </tr>
           </thead>
           <tbody>
@@ -144,12 +144,14 @@ async function enviarPartePorCorreo() {
           </tbody>
         </table>
       </div>
-      <button class="btn btn-primary mb-3" @click="descargarPDF">
-        Descargar PDF
-      </button>
-      <button class="btn btn-secondary mb-3 ms-2" @click="enviarPartePorCorreo">
-        Enviar por correo
-      </button>
+      <div class="input-group">
+        <button class="btn btn-primary mb-3" @click="descargarPDF">
+          Descargar PDF
+        </button>
+        <button class="btn btn-secondary mb-3 ms-2" @click="enviarPartePorCorreo">
+          Enviar por correo
+        </button>
+      </div>
       <p v-if="pdfError" class="alert alert-danger">{{ pdfError.value }}</p>
     </div>
     <div v-else>
