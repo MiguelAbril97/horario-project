@@ -1,9 +1,12 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { getHorarioProfe, getProfesores } from '@/api/peticiones'
+import { onMounted, ref, computed } from 'vue'
+import { getHorarioProfe, getProfesores, getListaAulas, getListaGrupos  } from '@/api/peticiones'
 import { useRouter } from 'vue-router';
 import HorarioTable from '@/components/HorarioTable.vue'
+import { useUserStore } from '@/stores/usuario';
 
+const userStore = useUserStore();
+const usuarioActual = computed(() => userStore.usuario);
 
 const router = useRouter();
 const profesor = ref(null)
@@ -12,13 +15,25 @@ const errorHorario = ref(null)
 const errorProfesores = ref(null)
 const profesores = ref([])
 const selectedProfesor = ref(null)
-const aula = ref(null)
 const dias = ['L', 'M', 'X', 'J', 'V']
 const horas = Array.from({ length: 13 }, (_, i) => i + 1) 
 const mostrarBusqueda = ref(false)
-const grupo = ref(null)
 
+const grupos = ref([])
+const grupoInput = ref('')
+const showGrupoResults = ref(false)
+const grupoSeleccionado = ref('')
+
+
+const errorAulaGrupo = ref(null)
 const loading = ref(false);
+
+const aulas = ref([])
+const aulaInput = ref('')
+const showAulaResults = ref(false)
+const aulaSeleccionada = ref('')
+
+// Filtrado reactivo
 
 onMounted(async () => {
   loading.value = true;
@@ -36,23 +51,74 @@ onMounted(async () => {
   } catch (err) {
     errorProfesores.value = err.message
   }
-  loading.value = false;
-})
+  try{
+    aulas.value = await getListaAulas()
+    grupos.value = await getListaGrupos()
+    console.log(grupos.value)
+    }catch(err){
+      errorAulaGrupo.value = err.message
+    }
+    loading.value = false;
+  })
+
 const verProfe = (profesorId) => {
   router.push(`/profesor/${profesorId}`)
 }
 
+const aulasFiltradas = computed(() =>
+  aulas.value.filter(a => a.toLowerCase().startsWith(aulaInput.value.toLowerCase()))
+)
+
+const seleccionarAula = (aula) => {
+  aulaInput.value = aula
+  aulaSeleccionada.value = aula
+  showAulaResults.value = false
+}
+
+const onAulaInput = () => {
+  showAulaResults.value = aulaInput.value.length > 0 && aulasFiltradas.value.length > 0
+}
+
 const verAula = () => {
-  if (aula.value && aula.value.trim() !== '') {
-    router.push(`/horario/aula/${encodeURIComponent(aula.value.trim())}`)
+  const valor = aulaSeleccionada.value || aulaInput.value;
+  if (valor && valor.trim() !== '') {
+    router.push(`/horario/aula/${encodeURIComponent(valor.trim())}`)
   }
 }
 
+const onAulaBlur = () => {
+  setTimeout(() => {
+    showAulaResults.value = false
+  }, 200)
+}
+
+const gruposFiltrados = computed(() =>
+  grupos.value.filter(g => g.toLowerCase().includes(grupoInput.value.toLowerCase()))
+)
+
+const seleccionarGrupo = (grupo) => {
+  grupoInput.value = grupo
+  grupoSeleccionado.value = grupo
+  showGrupoResults.value = false
+}
+
+const onGrupoInput = () => {
+  showGrupoResults.value = grupoInput.value.length > 0 && gruposFiltrados.value.length > 0
+}
+
+const onGrupoBlur = () => {
+  setTimeout(() => {
+    showGrupoResults.value = false
+  }, 200)
+}
+
 const verGrupo = () => {
-  if (grupo.value && grupo.value.trim() !== '') {
-    router.push(`/horario/grupo/${encodeURIComponent(grupo.value.trim())}`)
+  const valor = grupoSeleccionado.value || grupoInput.value;
+  if (valor && valor.trim() !== '') {
+    router.push(`/horario/grupo/${encodeURIComponent(valor.trim())}`)
   }
 }
+
 </script>
 
 <template>
@@ -80,29 +146,89 @@ const verGrupo = () => {
             </option>
           </select>
           
-          <label for="buscarAula" class="form-label">Busca un aula: </label>
-          <div class="input-group mb-3">
-            <input type="text" id="buscarAula" v-model="aula" class="form-control shadow" placeholder="Numero/Nombre del aula"/>
-            <button class="btn btn-primary" type="button" @click="verAula">Buscar</button>
+          <div class="mb-3 position-relative">
+            <label for="buscarAula" class="form-label">Busca un aula:</label>
+            <input
+              type="text"
+              id="buscarAula"
+              v-model="aulaInput"
+              @input="onAulaInput"
+              @focus="onAulaInput"
+              @blur="onAulaBlur"
+              class="form-control"
+              autocomplete="off"
+              placeholder="Escribe el número o nombre del aula"
+            />
+            <ul
+              v-if="showAulaResults"
+              class="list-group position-absolute w-100"
+              style="z-index: 2000; max-height: 200px; overflow-y: auto;"
+            >
+              <li
+                v-for="aula in aulasFiltradas"
+                :key="aula"
+                class="list-group-item list-group-item-action"
+                @mousedown.prevent="seleccionarAula(aula)"
+              >
+                {{ aula }}
+              </li>
+            </ul>
+            <button class="btn btn-primary mt-2" @click="verAula">Buscar</button>
           </div>
-          
-          <label for="buscarGrupo" class="form-label">Busca un grupo: </label>
-          <div class="input-group mb-3">
-            <input type="text" id="buscarGrupo" v-model="grupo" class="form-control shadow" placeholder="Nombre del grupo"/>
-            <button class="btn btn-primary" type="button" @click="verGrupo">Buscar</button>
+          <div class="mb-3 position-relative">
+            <label for="buscarGrupo" class="form-label">Busca un grupo:</label>
+            <input
+              type="text"
+              id="buscarGrupo"
+              v-model="grupoInput"
+              @input="onGrupoInput"
+              @focus="onGrupoInput"
+              @blur="onGrupoBlur"
+              class="form-control"
+              autocomplete="off"
+              placeholder="Escribe el nombre del grupo"
+            />
+            <ul
+              v-if="showGrupoResults"
+              class="list-group position-absolute w-100 overflow-auto"
+              style="z-index: 2000; max-height: 200px;"
+            >
+              <li
+                v-for="grupo in gruposFiltrados"
+                :key="grupo"
+                class="list-group-item list-group-item-action"
+                @mousedown.prevent="seleccionarGrupo(grupo)"
+                style="cursor: pointer;"
+              >
+                {{ grupo }}
+              </li>
+            </ul>
+            <button class="btn btn-primary mt-2" @click="verGrupo">Buscar</button>
           </div>
         </div>
       </transition>
     </div>
     
-    <p v-if="errorProfesores" class="text-danger">Error: {{ errorProfesores }}</p>
-    <p v-if="errorHorario" class="text-danger">Error: {{ errorHorario }}</p>
+    <div v-if="usuarioActual.rol == 1 || usuarioActual.is_superuser == true">
+      <p v-if="errorAulaGrupo" class="text-danger">Error al obtener aulas y grupos: {{ errorAulaGrupo }}</p>
+      <p v-if="errorProfesores" class="text-danger">Error al obtener profesores: {{ errorProfesores }}</p>
+      <p v-if="errorHorario" class="text-danger">Error al obtener tu horario: {{ errorHorario }}</p>
+
+    </div>
+
     <h2>Tu horario</h2>
     <HorarioTable :horarios="horario" :dias="dias" :horas="horas" />
   </div>
 
 </template>
-
 <style scoped>
-
+.card {
+  position: relative;
+  z-index: 1;
+  overflow: visible !important;
+}
+.form-select {
+  position: relative;
+  z-index: 1050;
+}
 </style>

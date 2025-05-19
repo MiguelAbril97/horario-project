@@ -1,8 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue'
 import { createAusencia, getHorarioProfeDia } from '@/api/peticiones'
-import { useUserStore } from '@/stores/sesion';
-
+import { useUserStore } from '@/stores/usuario'
 
 const userStore = useUserStore();
 const profesor = computed(()=>ref(userStore.getUser()));

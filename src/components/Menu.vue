@@ -20,10 +20,10 @@
             <li class="nav-item d-flex align-items-center">
               <RouterLink class="nav-link" to="/ausencias/crear" style="color: #ffffff;">Crear Ausencia</RouterLink>
             </li>
-            <li v-if="profesor.value.rol == 1 || profesor.value.is_superuser == true" class="nav-item d-flex align-items-center">
+            <li v-if="profesor && (profesor.rol == 1 || profesor.is_superuser)" class="nav-item d-flex align-items-center">
               <RouterLink class="nav-link" to="/usuario/crear" style="color: #ffffff;">Crear Usuario</RouterLink>
             </li>
-            <li v-if="profesor.value.rol == 1 || profesor.value.is_superuser == true" class="nav-item d-flex align-items-center">
+            <li v-if="profesor && (profesor.rol == 1 || profesor.is_superuser)" class="nav-item d-flex align-items-center">
               <RouterLink class="nav-link" to="/horario/subir" style="color: #ffffff;">Cargar Nuevo Horario</RouterLink>
             </li>
             <li class="nav-item d-flex align-items-center">
@@ -33,7 +33,7 @@
             </li>
             <div class="collapse  collapse-horizontal" id="logout">
               <div class="card card-body"  style="width: 300px;">
-                <p>Usuario: {{ profesor.value.first_name +" "+profesor.value.last_name}}</p>
+                <p>Usuario: {{ profesor.first_name +" "+profesor.last_name}}</p>
                 <RouterLink class=" btn btn-warning" to="/logout" @click.prevent="sesion.logout()">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </RouterLink>
@@ -45,18 +45,19 @@
   </template>
 
   <script setup>
-  import { useSesionStore, useUserStore } from '@/stores/sesion';
+  import { useSesionStore } from '@/stores/sesion';
+  import { useUserStore } from '@/stores/usuario';
   import { onMounted, computed, ref } from 'vue';
 
 
   const sesion = useSesionStore();
   const userStore = useUserStore();
   const isAuthenticated = computed(() => sesion.isAuthenticated);
-  const profesor = computed(()=>ref(userStore.getUser()));
+  const profesor = computed(() => userStore.usuario);
 
-function actualizarProfesor() {
-  profesor.value = userStore.getUser();
-}
+  function actualizarProfesor() {
+    userStore.getUser();
+  }
 
 onMounted(() => {
   sesion.checkSesion();

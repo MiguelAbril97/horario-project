@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { useSesionStore } from '@/stores/sesion'
+import { useUserStore } from '@/stores/usuario'
 
 const clientId = 'api-horario';
 const clientSecret = 'secret_contraseña';
@@ -19,6 +21,30 @@ apiClient.interceptors.request.use(config => {
   }
   return config;
 }, error => Promise.reject(error));
+
+// Si hay un error 401 (no autorizado), redirige al login, asi controlamos si el access token ha caducado
+apiClient.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      // Elimina el token y actualiza el estado de sesión
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('usuario');
+      try {
+        // Si Pinia ya está inicializado
+        const sesionStore = useSesionStore();
+        sesionStore.logout();
+      } catch (e) {
+        // Si no está inicializado, no pasa nada
+      }
+      // Redirige al login
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 
 // Función para almacenar o limpiar el token
 export const setAuthToken = token => {
@@ -72,6 +98,7 @@ export const login = async (token) => {
 
 // Función para cerrar sesión (logout)
 export const logout = async () => {
+  const userStore = useUserStore();
   const refreshToken = localStorage.getItem('refresh_token');
   if (refreshToken) {
     const revokeURL = 'http://127.0.0.1:8000/oauth2/revoke_token/';
@@ -92,7 +119,7 @@ export const logout = async () => {
   }
   setAuthToken(null);
   localStorage.removeItem('refresh_token');
-  localStorage.removeItem('usuario');
+  useUserStore.cleanUser();
 
 };
 
@@ -214,5 +241,15 @@ export const buscarAula = async(aula) =>{
 
 export const buscarGrupo = async(grupo) =>{
   const response = await apiClient.get(`horarios/grupo/${grupo}/`);
+  return response.data;
+}
+
+export const getListaAulas = async () => {
+  const response = await apiClient.get('aulas/lista/');
+  return response.data;
+}
+
+export const getListaGrupos = async () => {
+  const response = await apiClient.get('grupos/lista/');
   return response.data;
 }

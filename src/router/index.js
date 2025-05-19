@@ -9,6 +9,7 @@ import UsuarioForm from '@/views/UsuarioForm.vue'
 import AboutView from '@/views/AboutView.vue'
 import CargarHorarioView from '@/views/CargarHorarioView.vue'
 import Aula_Grupo_View from '@/views/Aula_Grupo_View.vue'
+import { useSesionStore } from '@/stores/sesion'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -76,6 +77,15 @@ const router = createRouter({
       component: Aula_Grupo_View,
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const sesionStore = useSesionStore()
+  if (to.name !== 'login' && !sesionStore.isAuthenticated) {
+    next({ name: 'login' })
+  } else {
+    next()
+  }
 })
 
 export default router

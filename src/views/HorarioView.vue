@@ -1,8 +1,12 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
 import { getHorarioProfe, getProfe } from '@/api/peticiones'
 import { useRoute } from 'vue-router';
 import HorarioTable from '@/components/HorarioTable.vue'
+import { useUserStore } from '@/stores/usuario';
+
+const userStore = useUserStore();
+const usuarioActual = computed(() => userStore.usuario);
 
 const route = useRoute();
 const id_profe = route.params.profesorId;
@@ -61,7 +65,7 @@ watch(
       </div>
     </div>
     <div v-else-if="profesor && !loading">
-      <div>
+      <div v-if="usuarioActual.rol == 1 || usuarioActual.is_superuser == true">
           <h2>
           Datos del profesor
           <router-link :to="`/usuario/editar/${id_profe}`" class="ms-2">
@@ -74,6 +78,7 @@ watch(
             {{ profesor.first_name }} {{ profesor.last_name }}
           </router-link>
         </p>
+        <p><strong>Email:</strong> {{ profesor.email }}</p>
       </div>
       <div class="d-flex flex-column">
         <h2 v-if="profesor" class="my-4">Horario de {{ profesor.first_name }} {{ profesor.last_name }}</h2>

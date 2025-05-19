@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { getAusenciasFecha, getAusenciasProfe, getHorariosDia, 
   deleteAusencia, getGuardias, enviarParteAusencias } from '@/api/peticiones'
-import { getusuarioGuardado } from '@/api/usuario';
+import { useUserStore } from '@/stores/usuario' 
 import html2pdf from 'html2pdf.js';
 
 // Utilidades para obtener fecha y día actual
@@ -20,8 +20,11 @@ function getFechaHoy() {
 
 const fecha = ref(getFechaHoy());
 const dia = ref(getDiaSemanaLetra(fecha.value));
-const horas = Array.from({ length: 14 }, (_, i) => i + 1) 
-const profesor = ref(getusuarioGuardado())
+const horas = Array.from({ length: 14 }, (_, i) => i + 1)
+
+const userStore = useUserStore();
+const profesor = ref(userStore.usuario); 
+
 const guardias = ref([]);
 
 const ausencias = ref([]);
@@ -35,9 +38,13 @@ const loading = ref(false);
 const cargarDatos = async () => {
   loading.value = true;
   try {
-    profesor.value = getusuarioGuardado();
+    profesor.value = userStore.usuario;
     ausencias.value = await getAusenciasFecha(fecha.value);
-    misAusencias.value = await getAusenciasProfe(profesor.value.id);
+    if (profesor.value && profesor.value.id) {
+      misAusencias.value = await getAusenciasProfe(profesor.value.id);
+    } else {
+      misAusencias.value = [];
+    }
     horarios.value = await getHorariosDia(dia.value);
     guardias.value = await getGuardias(dia.value);
     misAusencias.value = [...misAusencias.value].sort((a,b)=> a.fecha - b.fecha)
