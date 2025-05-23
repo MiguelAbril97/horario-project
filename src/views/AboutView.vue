@@ -1,9 +1,13 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
-import { getHorarioProfe, getProfe, getAusenciasProfe } from '@/api/peticiones'
+import { onMounted, ref, watch, computed } from 'vue'
+import { useUserStore } from '@/stores/usuario' 
+import { getHorarioProfe, getProfe, getAusenciasProfe,justificarAusencia, deleteAusencia } from '@/api/peticiones'
 import { useRoute } from 'vue-router';
 import HorarioTable from '@/components/HorarioTable.vue'
+import AusenciasUsuario from '@/components/AusenciasUsuario.vue'
 
+const userStore = useUserStore();
+const usuario = computed(() => userStore.usuario);
 const route = useRoute();
 const id_profe = route.params.id;
 const profesor = ref(null);
@@ -44,6 +48,7 @@ onMounted(async () => {
   cargarHorario(id_profe);
   cargarProfe(id_profe);
   cargarAusencias(id_profe);
+  usuario.value = userStore.getUser();
 
 })
 
@@ -68,7 +73,12 @@ watch(
       <p><strong>Nombre:</strong> {{ profesor.first_name }} {{ profesor.last_name }}</p>
       <p><strong>Email:</strong> {{ profesor.email }}</p>
     </div>
-    <AusenciasUsuario :misAusencias="ausencias" />
+    <AusenciasUsuario
+      :misAusencias="ausencias"
+      :profesor="usuario"
+      @justificar="justificarAusencia"
+      @eliminar="deleteAusencia"
+    />
     <div class="d-flex flex-column">
       <h2 v-if="profesor" class="my-4">Horario de {{ profesor.first_name }} {{ profesor.last_name }}</h2>
       <HorarioTable :horarios="horarios" :dias="dias" :horas="horas" />

@@ -4,7 +4,7 @@ import { createAusencia, getHorarioProfeDia } from '@/api/peticiones'
 import { useUserStore } from '@/stores/usuario'
 
 const userStore = useUserStore();
-const profesor = computed(()=>ref(userStore.getUser()));
+const profesor = computed(() => userStore.usuario);
 const fecha = ref('')
 const motivo = ref('')
 const horariosDia = ref([])
@@ -30,10 +30,10 @@ watch(fecha, async (nuevaFecha) => {
   horariosDia.value = []
   exito.value = null
   error.value = null
-  if (nuevaFecha && profesor.value.value) {
+  if (nuevaFecha && profesor.value.id) {
     const diaLetra = getDiaSemanaLetra(nuevaFecha)
     try {
-      horariosDia.value = await getHorarioProfeDia(profesor.value.value.id, diaLetra)
+      horariosDia.value = await getHorarioProfeDia(profesor.value.id, diaLetra)
     } catch (err) {
       error.value = 'No se pudieron cargar los horarios.'
     }
@@ -75,7 +75,7 @@ const enviarAusencia = async () => {
     <form @submit.prevent="enviarAusencia">
       <div class="mb-3">
         <label class="form-label">Profesor</label>
-        <input type="text" class="form-control" :value="profesor ? profesor.value.first_name + ' ' + profesor.value.last_name : ''" disabled>
+        <input type="text" class="form-control" :value="profesor ? profesor.first_name + ' ' + profesor.last_name : ''" disabled>
       </div>
       <div class="mb-3">
         <label for="fecha" class="form-label">Fecha</label>

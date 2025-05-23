@@ -194,6 +194,10 @@ export const deleteAusencia = async (ausenciaId) => {
   return response.data;
 };
 
+export const justificarAusencia = async (ausenciaId) => {
+  const response = await apiClient.put(`ausencias/justificar/${ausenciaId}/`);
+  return response.data;
+}
 
 export const crearUsuario = async (data) => {
   const response = await apiClient.post(`usuario/crear/`, data);

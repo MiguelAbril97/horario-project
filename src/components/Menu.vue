@@ -18,7 +18,7 @@
               <RouterLink class="nav-link" to="/ausencias" style="color: #ffffff;">Ausencias</RouterLink>
             </li>
             <li class="nav-item d-flex align-items-center">
-              <RouterLink class="nav-link" to="/ausencias/crear" style="color: #ffffff;">Crear Ausencia</RouterLink>
+              <RouterLink class="nav-link" to="/ausencias/crear" style="color: #ffffff;">Reportar Ausencia</RouterLink>
             </li>
             <li v-if="profesor && (profesor.rol == 1 || profesor.is_superuser)" class="nav-item d-flex align-items-center">
               <RouterLink class="nav-link" to="/usuario/crear" style="color: #ffffff;">Crear Usuario</RouterLink>
