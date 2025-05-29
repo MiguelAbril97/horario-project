@@ -257,3 +257,24 @@ export const getListaGrupos = async () => {
   const response = await apiClient.get('grupos/lista/');
   return response.data;
 }
+
+export const recuperarPassword = async (email) => {
+  try {
+    const response = await apiClient.post('password_reset/', { email });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const confirmarResetPassword = async (token, password) => {
+  try {
+    const response = await apiClient.post('password_reset/confirm/', {
+      token,
+      password
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

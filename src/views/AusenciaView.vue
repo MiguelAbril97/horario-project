@@ -168,7 +168,7 @@ async function enviarPartePorCorreo() {
           <button class="btn btn-primary mb-3" @click="descargarPDF">
             Descargar PDF
           </button>
-          <button class="btn btn-secondary mb-3 ms-2" @click="enviarPartePorCorreo">
+          <button v-if="profesor.rol == 1 || profesor.is_superuser" class="btn btn-secondary mb-3 ms-2" @click="enviarPartePorCorreo">
             Enviar por correo
           </button>
         </div>

@@ -37,19 +37,24 @@ const iniciarSesion = async () => {
 </script>
 
 <template>
-  <div class="container mt-5" style="max-width: 400px;">
-    <h2>Iniciar sesión</h2>
-    <form @submit.prevent="iniciarSesion">
-      <div class="mb-3">
-        <label for="username" class="form-label">Usuario</label>
-        <input v-model="username" type="text" class="form-control" id="username" required />
+    <div class="card shadow-sm mt-3">
+      <div class="card-body">
+      <h2 class="card-title">Iniciar sesión</h2>
+      <form @submit.prevent="iniciarSesion">
+        <div class="mb-3">
+          <label for="username" class="form-label">Usuario</label>
+          <input v-model="username" type="text" class="form-control" id="username" required />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <input v-model="password" type="password" class="form-control" id="password" required />
+        </div>
+        <button type="submit" class="btn btn-dark w-100">Entrar</button>
+        <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
+      </form>
       </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Contraseña</label>
-        <input v-model="password" type="password" class="form-control" id="password" required />
-      </div>
-      <button type="submit" class="btn btn-dark w-100">Entrar</button>
-      <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
-    </form>
-  </div>
+    </div>
+    <div class="text-center mt-3">
+      <router-link to="/recuperar-password">¿Olvidaste tu contraseña?</router-link>
+    </div>
 </template>

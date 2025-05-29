@@ -12,7 +12,7 @@
         <div v-if="profesor && (profesor.rol == 1 || profesor.is_superuser)">
           <button
             type="button"
-            class="btn btn-outline-success btn-sm"
+            class="btn btn-outline-success btn-sm mx-2"
             @click="$emit('justificar', ausencia.id)"
             :disabled="ausencia.justificada"
           >

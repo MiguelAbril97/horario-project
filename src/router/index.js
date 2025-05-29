@@ -10,6 +10,8 @@ import AboutView from '@/views/AboutView.vue'
 import CargarHorarioView from '@/views/CargarHorarioView.vue'
 import Aula_Grupo_View from '@/views/Aula_Grupo_View.vue'
 import { useSesionStore } from '@/stores/sesion'
+import RecuperarPassword from '@/views/RecuperarPassword.vue'
+import ResetPassword from '@/views/ResetPassword.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -76,12 +78,25 @@ const router = createRouter({
       name: 'aula-grupo-horario',
       component: Aula_Grupo_View,
     },
+    {
+      path: '/recuperar-password',      
+      name: 'recuperar-password',
+      component: RecuperarPassword,
+    },
+    {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: ResetPassword,
+      props: route => ({ token: route.query.token })  // recibimos el token de la URL
+    },
+
   ],
 })
 
 router.beforeEach((to, from, next) => {
   const sesionStore = useSesionStore()
-  if (to.name !== 'login' && !sesionStore.isAuthenticated) {
+  const publicPages = ['login', 'password_reset']
+  if (!publicPages.includes(to.name) && !sesionStore.isAuthenticated) {
     next({ name: 'login' })
   } else {
     next()

@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, ref, watch, computed } from 'vue'
 import { useUserStore } from '@/stores/usuario' 
-import { getHorarioProfe, getProfe, getAusenciasProfe,justificarAusencia, deleteAusencia } from '@/api/peticiones'
+import { getHorarioProfe, getProfe, getAusenciasProfe, justificarAusencia as apiJustificarAusencia, 
+  deleteAusencia as deleteAusenciaAPI } from '@/api/peticiones'
 import { useRoute } from 'vue-router';
 import HorarioTable from '@/components/HorarioTable.vue'
 import AusenciasUsuario from '@/components/AusenciasUsuario.vue'
@@ -44,12 +45,35 @@ const cargarAusencias = async (id_profe) => {
   }
 }
 
+// Cambia aquí: espera la respuesta del servidor antes de marcar como justificada
+async function justificarAusencia(id) {
+  try {
+    await apiJustificarAusencia(id); // espera respuesta OK del servidor
+    // Solo si fue OK, actualiza el array local
+    const ausencia = ausencias.value.find(a => a.id === id);
+    if (ausencia) {
+      ausencia.justificada = true;
+    }
+  } catch (err) {
+    error.value = 'No se pudo justificar la ausencia. Intenta de nuevo.';
+  }
+}
+
+async function deleteAusencia(id) {
+  try {
+    await deleteAusenciaAPI(id); // espera respuesta OK del servidor
+    // Solo si fue OK, elimina del array local
+    ausencias.value = ausencias.value.filter(a => a.id !== id);
+  } catch (err) {
+    error.value = 'No se pudo eliminar la ausencia. Intenta de nuevo.';
+  }
+}
+
 onMounted(async () => {
   cargarHorario(id_profe);
   cargarProfe(id_profe);
   cargarAusencias(id_profe);
   usuario.value = userStore.getUser();
-
 })
 
 watch(
