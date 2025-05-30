@@ -8,13 +8,35 @@ const errorArchivo = ref(null)
 const onFileChange = async (event) => {
   const file = event.target.files[0];
   if (file) {
-    try{
-      await subirHorario(file);
-    }catch (err){
-      errorArchivo.value = err.message
-    }
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const text = e.target.result;
+      try {
+        await subirHorario(file);
+        /* Envía el texto a Chatbase, asi actualizamos los datos del bot.
+        Para eso se necesitaria un plan de pago, aunque en la pagina dice que no :v
+        await fetch('https://www.chatbase.co/api/v1/update-chatbot-data', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer TU_API_KEY',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            chatbotId: '9pVXnzsBmOSXFU0PaGI80',
+            chatbotName: 'Asistente de Horarios',
+            sourceText: text
+          })
+        });*/
+      } catch (err) {
+        errorArchivo.value = err.message
+      }
+    };
+    //reader.readAsText(file);
   }
 };
+
+ 
+
 </script>
 
 <template>

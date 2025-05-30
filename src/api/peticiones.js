@@ -31,13 +31,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('usuario');
-      try {
-        // Si Pinia ya está inicializado
-        const sesionStore = useSesionStore();
-        sesionStore.logout();
-      } catch (e) {
-        // Si no está inicializado, no pasa nada
-      }
+
       // Redirige al login
       window.location.href = '/login';
     }
@@ -100,13 +94,13 @@ export const login = async (token) => {
 export const logout = async () => {
   const userStore = useUserStore();
   const refreshToken = localStorage.getItem('refresh_token');
+  const sesionStore = useSesionStore();
   if (refreshToken) {
     const revokeURL = 'http://127.0.0.1:8000/oauth2/revoke_token/';
     const params = new URLSearchParams();
     params.append('token', refreshToken);
     params.append('client_id', clientId);
     params.append('client_secret', clientSecret);
-
     try {
       await axios.post(revokeURL, params, {
         headers: {
@@ -117,9 +111,10 @@ export const logout = async () => {
       console.error('❌ Error al revocar el token:', err.response?.data || err);
     }
   }
+  sesionStore.logout();
   setAuthToken(null);
   localStorage.removeItem('refresh_token');
-  useUserStore.cleanUser();
+  userStore.clearUser();
 
 };
 

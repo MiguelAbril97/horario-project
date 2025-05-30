@@ -1,6 +1,59 @@
 <script setup>
 import { RouterView } from 'vue-router'
 import Menu from "./components/Menu.vue";
+import { watch } from 'vue'
+import { useSesionStore } from '@/stores/sesion'
+
+const sesion = useSesionStore()
+
+function loadChatbase() {
+  if (document.getElementById('9pVXnzsBmOSXFU0PaGI80')) return
+  const script = document.createElement('script')
+  script.src = 'https://www.chatbase.co/embed.min.js'
+  script.id = '9pVXnzsBmOSXFU0PaGI80'
+  script.domain = 'www.chatbase.co'
+  document.body.appendChild(script)
+}
+
+// Cargar solo si está autenticado
+watch(
+  () => sesion.isAuthenticated,
+  (isAuth) => {
+    if (isAuth) {
+      loadChatbase()
+    } else {
+      // Eliminar el script
+      const s = document.getElementById('9pVXnzsBmOSXFU0PaGI80')
+      if (s) s.remove()
+
+      // Función para eliminar burbuja e iframe de Chatbase
+      function removeChatbaseElements() {
+        // Elimina todos los iframes de Chatbase
+        document.querySelectorAll('iframe').forEach(el => {
+          if (el.src && el.src.includes('chatbase')) el.remove()
+        })
+
+        // Elimina cualquier div con id o clase que contenga 'chatbase'
+        document.querySelectorAll('div, span').forEach(el => {
+          if (
+            (el.id && el.id.toLowerCase().includes('chatbase')) ||
+            (el.className && el.className.toLowerCase().includes('chatbase'))
+          ) {
+            el.remove()
+          }
+        })
+      }
+
+      removeChatbaseElements()
+      removeChatbaseElements()
+      setTimeout(removeChatbaseElements, 200)
+      setTimeout(removeChatbaseElements, 500)
+      setTimeout(removeChatbaseElements, 1000)
+      
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

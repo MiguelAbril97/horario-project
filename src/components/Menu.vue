@@ -34,7 +34,7 @@
             <div class="collapse  collapse-horizontal" id="logout">
               <div class="card card-body"  style="width: 300px;">
                 <p>Usuario: {{ profesor.first_name +" "+profesor.last_name}}</p>
-                <RouterLink class=" btn btn-warning" to="/logout" @click.prevent="sesion.logout()">
+                <RouterLink class=" btn btn-warning" to="/logout" @click.prevent="logout()">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </RouterLink>
               </div>
@@ -47,7 +47,8 @@
   <script setup>
   import { useSesionStore } from '@/stores/sesion';
   import { useUserStore } from '@/stores/usuario';
-  import { onMounted, computed, ref } from 'vue';
+  import { logout } from '@/api/peticiones';
+  import { onMounted, computed } from 'vue';
 
 
   const sesion = useSesionStore();
