@@ -3,8 +3,11 @@ import { RouterView } from 'vue-router'
 import Menu from "./components/Menu.vue";
 import { watch } from 'vue'
 import { useSesionStore } from '@/stores/sesion'
+import { useUserStore } from '@/stores/usuario'
+
 
 const sesion = useSesionStore()
+const userStore = useUserStore()
 
 function loadChatbase() {
   if (document.getElementById('9pVXnzsBmOSXFU0PaGI80')) return
@@ -12,6 +15,19 @@ function loadChatbase() {
   script.src = 'https://www.chatbase.co/embed.min.js'
   script.id = '9pVXnzsBmOSXFU0PaGI80'
   script.domain = 'www.chatbase.co'
+  script.onload = () => {
+    // Solo identifica al usuario una vez, cuando el script está listo
+    if (window.chatbase) {
+      const usuario = userStore.usuario
+      window.chatbase("identify", {
+        user_id: usuario.id,
+        metadata: {
+          name: usuario.nombre,
+          email: userStore.usuario.email
+        }
+      })
+    }
+  }
   document.body.appendChild(script)
 }
 
