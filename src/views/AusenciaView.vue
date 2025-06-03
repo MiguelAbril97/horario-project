@@ -16,6 +16,10 @@ function getFechaHoy() {
   const hoy = new Date()
   return hoy.toISOString().slice(0, 10)
 }
+function onFechaChange() {
+  dia.value = getDiaSemanaLetra(fecha.value)
+  cargarDatos()
+}
 
 const fecha = ref(getFechaHoy());
 const dia = ref(getDiaSemanaLetra(fecha.value));
@@ -135,7 +139,22 @@ async function enviarPartePorCorreo() {
   </div>
   <div v-else>
     <div class="container mt-5">
-      <h2>Parte de ausencias de hoy</h2>
+      <h2>Parte de ausencias del {{ fecha }}</h2>
+      <form class="d-flex align-items-center mb-3" @submit.prevent="onFechaChange">
+        <label for="fecha" class="form-label me-2 mb-0">Selecciona fecha:</label>
+        <div class="input-group" style="max-width: 220px;">
+          <span class="input-group-text">
+            <i class="bi bi-calendar"></i>
+          </span>
+          <input
+            id="fecha"
+            type="date"
+            class="form-control"
+            v-model="fecha"
+          />
+        </div>
+        <button class="btn btn-primary ms-2" type="submit">Buscar</button>
+      </form>
       <div v-if="error" class="alert alert-danger">{{ error }}</div>
       <div v-if="['L','M','X','J','V'].includes(dia)">
         <h4>

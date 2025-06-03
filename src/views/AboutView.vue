@@ -2,10 +2,12 @@
 import { onMounted, ref, watch, computed } from 'vue'
 import { useUserStore } from '@/stores/usuario' 
 import { getHorarioProfe, getProfe, getAusenciasProfe, justificarAusencia as apiJustificarAusencia, 
-  deleteAusencia as deleteAusenciaAPI } from '@/api/peticiones'
+  deleteAusencia as deleteAusenciaAPI, getAusencia } from '@/api/peticiones'
 import { useRoute } from 'vue-router';
 import HorarioTable from '@/components/HorarioTable.vue'
 import AusenciasUsuario from '@/components/AusenciasUsuario.vue'
+import AusenciaDetails from '@/components/AusenciaDetails.vue'
+
 
 const userStore = useUserStore();
 const usuario = computed(() => userStore.usuario);
@@ -17,6 +19,25 @@ const error = ref(null);
 const ausencias = ref([]);
 const dias = ['L', 'M', 'X', 'J', 'V']
 const horas = Array.from({ length: 13 }, (_, i) => i + 1) // 1 a 13
+
+// Modal de detalle
+const showDetalle = ref(false)
+const detalleAusencia = ref(null)
+
+async function verDetalleAusencia(id) {
+  showDetalle.value = true
+  detalleAusencia.value = null
+  try {
+    detalleAusencia.value = await getAusencia(id)
+  } catch (err) {
+    detalleAusencia.value = { fecha: '', justificada: false, motivo: 'Error al cargar' }
+  }
+}
+function cerrarDetalle() {
+  showDetalle.value = false
+  detalleAusencia.value = null
+}
+
 
 const cargarHorario = async (id_profe) => {
   try {
@@ -102,6 +123,12 @@ watch(
       :profesor="usuario"
       @justificar="justificarAusencia"
       @eliminar="deleteAusencia"
+      @ver-detalle="verDetalleAusencia"
+    />
+    <AusenciaDetails
+      :visible="showDetalle"
+      :ausencia="detalleAusencia"
+      @close="cerrarDetalle"
     />
     <div class="d-flex flex-column">
       <h2 v-if="profesor" class="my-4">Horario de {{ profesor.first_name }} {{ profesor.last_name }}</h2>

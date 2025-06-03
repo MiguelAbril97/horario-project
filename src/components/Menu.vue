@@ -33,7 +33,15 @@
             </li>
             <div class="collapse  collapse-horizontal" id="logout">
               <div class="card card-body"  style="width: 300px;">
-                <p>Usuario: {{ profesor.first_name +" "+profesor.last_name}}</p>
+                <p>Usuario: 
+                  <RouterLink
+                    class="usuario-link"
+                    :to="`/usuario/ver/${profesor.id}`"
+                  >
+                    <span class="usuario-nombre">{{ profesor.first_name + " " + profesor.last_name }}</span>
+                    <span class="ver-usuario-text">Ver usuario</span>
+                  </RouterLink>
+                </p>
                 <RouterLink class=" btn btn-warning" to="/logout" @click.prevent="logout()">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </RouterLink>
@@ -65,5 +73,29 @@ onMounted(() => {
   actualizarProfesor();
   window.addEventListener('storage', actualizarProfesor);
 });
-  </script>
+</script>
   
+<style scoped>
+.usuario-link {
+  color: #222;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+  padding: 2px 8px;
+  position: relative;
+  display: inline-block;
+}
+.usuario-link .ver-usuario-text {
+  display: none;
+}
+.usuario-link:hover {
+  background: #000;
+  color: #fff !important;
+}
+.usuario-link:hover .usuario-nombre {
+  display: none;
+}
+.usuario-link:hover .ver-usuario-text {
+  display: inline;
+}
+</style>

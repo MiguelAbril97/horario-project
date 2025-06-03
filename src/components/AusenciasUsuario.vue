@@ -7,13 +7,15 @@
         v-for="ausencia in misAusencias"
         :key="ausencia.id"
         :class="{'bg-success bg-opacity-25': ausencia.justificada}"
+        @click="$emit('ver-detalle', ausencia.id)"
+        style="cursor:pointer"
       >
         {{ ausencia.fecha }} / {{ ausencia.horario?.hora || '-' }}
         <div v-if="profesor && (profesor.rol == 1 || profesor.is_superuser)">
           <button
             type="button"
             class="btn btn-outline-success btn-sm mx-2"
-            @click="$emit('justificar', ausencia.id)"
+            @click.stop="$emit('justificar', ausencia.id)"
             :disabled="ausencia.justificada"
           >
             {{ ausencia.justificada ? 'Justificada' : 'Justificar' }}
@@ -21,7 +23,7 @@
           <button
             type="button"
             class="btn btn-outline-danger btn-sm"
-            @click="$emit('eliminar', ausencia.id)"
+            @click.stop="$emit('eliminar', ausencia.id)"
             >
             Eliminar
           </button>
@@ -33,7 +35,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 defineProps({
   misAusencias: Array,

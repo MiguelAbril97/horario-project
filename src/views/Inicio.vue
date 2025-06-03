@@ -14,7 +14,6 @@ const horario = ref([])
 const errorHorario = ref(null)
 const errorProfesores = ref(null)
 const profesores = ref([])
-const selectedProfesor = ref(null)
 const dias = ['L', 'M', 'X', 'J', 'V']
 const horas = Array.from({ length: 13 }, (_, i) => i + 1) 
 const mostrarBusqueda = ref(false)
@@ -33,7 +32,7 @@ const aulaInput = ref('')
 const showAulaResults = ref(false)
 const aulaSeleccionada = ref('')
 
-// Filtrado reactivo
+// Filtrado para profesores
 
 onMounted(async () => {
   loading.value = true;
@@ -61,8 +60,38 @@ onMounted(async () => {
     loading.value = false;
   })
 
-const verProfe = (profesorId) => {
-  router.push(`/profesor/${profesorId}`)
+const profesorInput = ref('')
+const showProfesorResults = ref(false)
+const profesorSeleccionado = ref(null)
+
+const profesoresFiltrados = computed(() =>
+  profesores.value.filter(p =>
+    (p.first_name + ' ' + p.last_name).toLowerCase().includes(profesorInput.value.toLowerCase()) ||
+    (p.last_name + ' ' + p.first_name).toLowerCase().includes(profesorInput.value.toLowerCase())
+  )
+)
+
+const onProfesorInput = () => {
+  showProfesorResults.value = profesorInput.value.length > 0 && profesoresFiltrados.value.length > 0
+}
+
+const seleccionarProfesor = (prof) => {
+  profesorInput.value = `${prof.last_name}, ${prof.first_name}`
+  profesorSeleccionado.value = prof
+  showProfesorResults.value = false
+}
+
+const onProfesorBlur = () => {
+  setTimeout(() => {
+    showProfesorResults.value = false
+  }, 200)
+}
+
+const verProfeSeleccionado = () => {
+  const prof = profesorSeleccionado.value || profesoresFiltrados.value[0]
+  if (prof && prof.id) {
+    router.push(`/profesor/${prof.id}`)
+  }
 }
 
 const aulasFiltradas = computed(() =>
@@ -138,13 +167,36 @@ const verGrupo = () => {
       </button>
       <transition name="fade">
         <div v-if="mostrarBusqueda" class="card p-4 mb-4 shadow">
-          <label for="profesorSelect" class="form-label">Selecciona un profesor: </label>
-          <select id="profesorSelect" class="form-select mb-3 shadow" v-model="selectedProfesor" @change="verProfe(selectedProfesor)">
-            <option value="" disabled>Seleccione un profesor</option>
-            <option v-for="profesor in profesores" :key="profesor.id" :value="profesor.id">
-              {{ profesor.last_name }}, {{ profesor.first_name }}
-            </option>
-          </select>
+          <div class="mb-3 position-relative">
+            <label for="buscarProfesor" class="form-label">Busca un profesor:</label>
+            <input
+              type="text"
+              id="buscarProfesor"
+              v-model="profesorInput"
+              @input="onProfesorInput"
+              @focus="onProfesorInput"
+              @blur="onProfesorBlur"
+              class="form-control"
+              autocomplete="off"
+              placeholder="Escribe el nombre o apellido"
+            />
+            <ul
+              v-if="showProfesorResults"
+              class="list-group position-absolute w-100"
+              style="z-index: 2000; max-height: 200px; overflow-y: auto;"
+            >
+              <li
+                v-for="prof in profesoresFiltrados"
+                :key="prof.id"
+                class="list-group-item list-group-item-action"
+                @mousedown.prevent="seleccionarProfesor(prof)"
+                style="cursor:pointer"
+              >
+                {{ prof.last_name }}, {{ prof.first_name }}
+              </li>
+            </ul>
+            <button class="btn btn-primary mt-2" @click="verProfeSeleccionado">Buscar</button>
+          </div>
           
           <div class="mb-3 position-relative">
             <label for="buscarAula" class="form-label">Busca un aula:</label>
