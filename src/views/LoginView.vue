@@ -16,10 +16,8 @@ const error = ref(null);
 
 const iniciarSesion = async () => {
   error.value = null;
-
   try {
     const token = await obtenerToken(username.value, password.value);
-
     if (token) {
       // (Opcional) Obtener el usuario y guardarlo en Vuex o localStorage
       const usuario = await login(token);

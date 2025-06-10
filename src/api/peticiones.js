@@ -2,12 +2,12 @@ import axios from 'axios';
 import { useSesionStore } from '@/stores/sesion'
 import { useUserStore } from '@/stores/usuario'
 
-const clientId = 'api-horario';
-const clientSecret = 'secret_contraseña';
+const clientId = "horario"
+const clientSecret = "secreto"
 
 // Instancia básica sin token
 const apiClient = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: 'http://localhost:8000/api/',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -51,8 +51,7 @@ export const setAuthToken = token => {
 
 // Función para obtener token OAuth2
 export const obtenerToken = async (usuario, password) => {
-  const tokenURL = 'http://127.0.0.1:8000/oauth2/token/';
-
+  const tokenURL = 'http://localhost:8000/oauth2/token/';
   const params = new URLSearchParams();
   params.append('grant_type', 'password');
   params.append('username', usuario);
@@ -74,7 +73,7 @@ export const obtenerToken = async (usuario, password) => {
       return access_token;
     }
   } catch (error) {
-    console.error('❌ Error al obtener el token:', error.response?.data || error);
+    console.error('❌ Error al obtener el token:'+usuario+" "+password+" "+clientId+" "+clientSecret, error.response?.data || error);
     return null;
   }
 };
