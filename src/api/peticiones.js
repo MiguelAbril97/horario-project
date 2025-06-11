@@ -2,8 +2,8 @@ import axios from 'axios';
 import { useSesionStore } from '@/stores/sesion'
 import { useUserStore } from '@/stores/usuario'
 
-const clientId = "horario"
-const clientSecret = "secreto"
+const clientId = import.meta.env.VITE_CLIENT_ID;
+const clientSecret = import.meta.env.VITE_CLIENT_SECRET;
 
 // Instancia básica sin token
 const apiClient = axios.create({
